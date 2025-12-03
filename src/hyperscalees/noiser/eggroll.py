@@ -16,7 +16,7 @@ def get_lora_update_params(frozen_noiser_params, base_sigma, iterinfo, param, ke
     sigma = jnp.where(thread_id % 2 == 0, base_sigma, -base_sigma)
 
     a, b = param.shape
-    lora_params = jax.random.normal(jax.random.fold_in(jax.random.fold_in(key, true_epoch), true_thread_idx), (a+b, frozen_noiser_params["rank"]), dtype=param.dtype)
+    lora_params = jax.random.normal(jax.random.fold_in(jax.random.fold_in(key, true_epoch), true_thread_idx), (a+b, frozen_noiser_params["rank"])).astype(param.dtype)
     B = lora_params[:b] # b x r
     A = lora_params[b:] # a x r
 
@@ -31,7 +31,7 @@ def get_nonlora_update_params(frozen_noiser_params, base_sigma, iterinfo, param,
     true_thread_idx = thread_id // 2
     sigma = jnp.where(thread_id % 2 == 0, base_sigma, -base_sigma)
 
-    updates = jax.random.normal(jax.random.fold_in(jax.random.fold_in(key, true_epoch), true_thread_idx), param.shape, dtype=param.dtype)
+    updates = jax.random.normal(jax.random.fold_in(jax.random.fold_in(key, true_epoch), true_thread_idx), param.shape).astype(param.dtype)
     return updates * sigma
 
 def _simple_full_update(base_sigma, param, key, scores, iterinfo, frozen_noiser_params):
